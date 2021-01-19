@@ -58,13 +58,14 @@ if(attempt==0):
 
 else:
     driver.get("https://www.ted.com/talks?page="+str(pagenum))
+n = 0
+iy = 0
+wy = 0
+ny = 0
+
 
 while(year>=limit):
     try:
-        n = 0
-        iy = 0
-        wy = 0
-        ny = 0
         while (year >= limit):
 
             # title, link, year 받는 부분
@@ -197,10 +198,13 @@ while(year>=limit):
                     scripts.append(script_one)
                     print("스크립트 완료")
 
+
                 # 뒤로가기
+
                 driver.back()
                 if (plags == 0):
                     driver.back()
+                ecnt = 0
 
             starting = 1  # 보수시 starting 바뀜을 고려
             ny = len(years)
@@ -221,37 +225,44 @@ while(year>=limit):
 
 
     except:
-        if(ecnt):
-            pass
-            """
-        finally:
-            lens = [0, 0, 0, 0, 0, 0]
-            lens[0] = len(titles)
-            lens[1] = len(links)
-            lens[2] = len(years)
-            lens[3] = len(views)
-            lens[4] = len(tags)
-            lens[5] = len(scripts)
-            minlen = min(lens)
-            titles = titles[:minlen]
-            links = links[:minlen]
-            years = years[:minlen]
-            views = views[:minlen]
-            tags = tags[:minlen]
-            scripts = scripts[:minlen]
+        if(ecnt<=5):
+            year=wy
+            starting=n
+        elif(ecnt>=5 and ecnt<=6):
+            driver.quit()
+            time.sleep(5)
+            driver.get("https://www.ted.com/talks?page=" + str(pagenum))
+        else:
+            print("Error did not fixed")
+            break
 
-            raw_data = {'titles': titles,
-                        'links': links,
-                        'years': years,
-                        'views': views,
-                        'tags': tags,
-                        'scripts': scripts
-                        }
-            raw_data = pd.DataFrame(raw_data)
-            raw_data.to_excel(excel_writer='C:/Users/User/Desktop/Data_' + str(attempt) + '.xlsx')
-            f_info = open('C:/Users/User/Desktop/tmp_info' + '_' + str(attempt) + '.txt', 'w', -1, "utf-8")
-            f_info.write(str(wy) + "/")
-            f_info.write(str(pagenum) + "/")
-            f_info.write(str(n) + "/")
-            f_info.close()
-"""
+lens = [0, 0, 0, 0, 0, 0]
+lens[0] = len(titles)
+lens[1] = len(links)
+lens[2] = len(years)
+lens[3] = len(views)
+lens[4] = len(tags)
+lens[5] = len(scripts)
+minlen = min(lens)
+titles = titles[:minlen]
+links = links[:minlen]
+years = years[:minlen]
+views = views[:minlen]
+tags = tags[:minlen]
+scripts = scripts[:minlen]
+
+raw_data = {'titles': titles,
+            'links': links,
+            'years': years,
+            'views': views,
+            'tags': tags,
+            'scripts': scripts
+            }
+raw_data = pd.DataFrame(raw_data)
+raw_data.to_excel(excel_writer='C:/Users/User/Desktop/Data_' + str(attempt) + '.xlsx')
+f_info = open('C:/Users/User/Desktop/tmp_info' + '_' + str(attempt) + '.txt', 'w', -1, "utf-8")
+f_info.write(str(wy) + "/")
+f_info.write(str(pagenum) + "/")
+f_info.write(str(n) + "/")
+f_info.close()
+

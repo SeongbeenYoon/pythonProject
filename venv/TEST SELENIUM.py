@@ -11,11 +11,39 @@ import pandas as pd
 import time
 #큰 와일 문 안에 전체 코드를 넣어서 트라이 엑셉트 문을 사용해보자. 그리고 다른 곳에 클릭하고 새로 명령하기를 시켜보는 것도 괜찮지 않을까?
 #실험이 필요해보이지만 우선 화요일을 무사히 넘기고 해야겠다
-
+start = time.time()
 
 #연도 하한선 설정
 limit=int(input("limit year: "))
-
+global to_config
+to_config=[]
+def remove_com(a):
+    new_list=[]
+    for v in a:
+        if v not in new_list:
+            new_list.append(v)
+    return new_list
+def remove_com_1(a):
+    plag=0
+    global to_config
+    new_list=[]
+    for v in a:
+        if v not in new_list:
+            new_list.append(v)
+        else:
+            to_config.append(a.index(v))
+    return new_list
+def remove_com_2(a):
+    global to_config
+    for i in range(len(a)):
+        if(len(to_config)!=0):
+            if (i == to_config[0]):
+                a[i] = 0
+                del to_config[0]
+    for v in a:
+        if(v==0):
+            del v
+    return a
 #각각의 배열 선언
 tags=[]
 views=[]
@@ -62,12 +90,13 @@ n = 0
 iy = 0
 wy = 0
 ny = 0
-
-
+e_plag=0
+cstarting=0
 while(year>=limit):
     try:
         while (year >= limit):
-
+            print("erroris here 1")
+            eplag=0
             # title, link, year 받는 부분
             cnt = starting
             wait = WebDriverWait(driver, 60)
@@ -76,6 +105,7 @@ while(year>=limit):
                            "/ div[2] / div[2] / div[1] / div[" + str(
                     cnt) + "] / div / div / div / div[2] / h4[2] / a")))
             while (year >= limit and cnt <= 36):
+                print("erroris here 2")
                 dateinfo = element_1.find_element_by_xpath(
                     "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[1]/div[" + str(
                         cnt) + "]/div/div/div/div[2]/div/span/span").text
@@ -93,16 +123,11 @@ while(year>=limit):
                 cnt += 1
             print("페이지 마지막 영상의 연도: " + str(year))
 
-            # 반복문 구조상 연도 누락에서 한번씩 더 받아오게 되어있음 이를 고려하여 마지막 요소를 pop함
-            """
-            if (cnt < 37):
-                years.pop()
-                titles.pop()
-                links.pop()
-                cnt-=1
-                """
             # for 문 내에서 각 영상의 script, tags, views 받아옴
             for i in range(starting, cnt):
+                print("erroris here 3")
+                cstarting=i
+                e_plag=1
                 print("영상 번호: " + str(pagenum) + "-" + str(i))
                 n = i
                 iy = ny + i
@@ -198,14 +223,14 @@ while(year>=limit):
                     scripts.append(script_one)
                     print("스크립트 완료")
 
-
+                temp_s=time.time()
                 # 뒤로가기
-
                 driver.back()
                 if (plags == 0):
                     driver.back()
                 ecnt = 0
 
+            print("erroris here 4")
             starting = 1  # 보수시 starting 바뀜을 고려
             ny = len(years)
             # 다음 페이지로 넘김
@@ -225,16 +250,29 @@ while(year>=limit):
 
 
     except:
+        print("erroris here 5")
         if(ecnt<=5):
-            year=wy
-            starting=n
+            ecnt += 1
+            if(e_plag==1):
+                year=wy
+                starting=cstarting
+
+            else:
+                year=wy
+                starting=n
+
         elif(ecnt>=5 and ecnt<=6):
+            ecnt += 1
             driver.quit()
             time.sleep(5)
             driver.get("https://www.ted.com/talks?page=" + str(pagenum))
         else:
             print("Error did not fixed")
             break
+#긁어온 데이터 분석해보니 약간 밀리는 뭔가가 있었던듯?
+links=remove_com(links)
+titles=remove_com_1(titles)
+years=remove_com_2(years)
 
 lens = [0, 0, 0, 0, 0, 0]
 lens[0] = len(titles)
@@ -265,4 +303,4 @@ f_info.write(str(wy) + "/")
 f_info.write(str(pagenum) + "/")
 f_info.write(str(n) + "/")
 f_info.close()
-
+print("time :", time.time() - start)  # 현재시각 - 시작시간 = 실행 시간

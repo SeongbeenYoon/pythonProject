@@ -17,12 +17,44 @@ start = time.time()
 limit=int(input("limit year: "))
 global to_config
 to_config=[]
+def merge3(a,b,c,l):
+    new_list=[[0]*3]*l
+    for i in range(l):
+        for j in range(3):
+            if(j==0):
+                new_list[i][j]=a[i]
+            elif(j==1):
+                new_list[i][j] = b[i]
+            else:
+                new_list[i][j] = c[i]
+
+    return new_list
+
 def remove_com(a):
     new_list=[]
     for v in a:
         if v not in new_list:
             new_list.append(v)
     return new_list
+
+def parseag_1(a):
+    new_list=[]
+    for v in a:
+        new_list.append(a[0])
+    return new_list
+def parseag_2(a):
+    new_list=[]
+    for v in a:
+        new_list.append(a[1])
+    return new_list
+def parseag_3(a):
+    new_list=[]
+    for v in a:
+        new_list.append(a[2])
+    return new_list
+
+
+"""
 def remove_com_1(a):
     plag=0
     global to_config
@@ -35,15 +67,37 @@ def remove_com_1(a):
     return new_list
 def remove_com_2(a):
     global to_config
+    tconfig=to_config
     for i in range(len(a)):
-        if(len(to_config)!=0):
-            if (i == to_config[0]):
+        if(len(tconfig)!=0):
+            if (i == tconfig[0]):
                 a[i] = 0
-                del to_config[0]
-    for v in a:
-        if(v==0):
-            del v
+                del tconfig[0]
+    r2plag=0
+    while(0 in a):
+        if(a[r2plag]==0):
+            del a[r2plag]
+        else:
+            r2plag+=1
+    print(a)
     return a
+def remove_com_3(a):
+    global to_config
+    tconfig=to_config
+    for i in range(len(a)):
+        if(len(tconfig)!=0):
+            if (i == tconfig[0]):
+                a[i] = 0
+                del tconfig[0]
+    r2plag=0
+    while(0 in a):
+        if(a[r2plag]==0):
+            del a[r2plag]
+        else:
+            r2plag+=1
+    print(a)
+    return a
+"""
 #각각의 배열 선언
 tags=[]
 views=[]
@@ -168,6 +222,7 @@ while(year>=limit):
                     testtag = element_1.find_element_by_xpath(
                         "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[1]/div/a[1]")
                 except NoSuchElementException:
+                    tags.append("No tags")
                     plagt = 1
                 else:
                     req = driver.page_source
@@ -193,6 +248,7 @@ while(year>=limit):
                     views.append(view)
                     print("check")
 
+
                 print("태그뷰 완료", end=" ")
 
                 # 스크립트 받음
@@ -203,6 +259,7 @@ while(year>=limit):
                     plags = 1
                     print("No Script")
                     scripts.append("No Scripts")
+                    cstarting = cstarting + 1
 
                 else:
                     testscr.click()
@@ -222,8 +279,8 @@ while(year>=limit):
                         script_one = "No Scripts"
                     scripts.append(script_one)
                     print("스크립트 완료")
+                    cstarting = cstarting + 1
 
-                    cstarting=cstarting+1
 
                 temp_s=time.time()
                 # 뒤로가기
@@ -272,9 +329,22 @@ while(year>=limit):
             print("Error did not fixed")
             break
 #긁어온 데이터 분석해보니 약간 밀리는 뭔가가 있었던듯?
+"""
 links=remove_com(links)
 titles=remove_com_1(titles)
 years=remove_com_2(years)
+"""
+lty=merge3(links,titles,years,len(links))
+lty=remove_com(lty)
+links=parseag_1(lty)
+titles=parseag_2(lty)
+years=parseag_3(lty)
+
+vts=merge3(views,tags,scripts,len(views))
+vts=remove_com(vts)
+views=parseag_1(vts)
+tags=parseag_2(vts)
+scripts=parseag_3(vts)
 
 lens = [0, 0, 0, 0, 0, 0]
 lens[0] = len(titles)
@@ -283,6 +353,7 @@ lens[2] = len(years)
 lens[3] = len(views)
 lens[4] = len(tags)
 lens[5] = len(scripts)
+print(lens)
 minlen = min(lens)
 titles = titles[:minlen]
 links = links[:minlen]

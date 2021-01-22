@@ -59,7 +59,7 @@ pagenum=1 #기본값, 코드 재시도시 입력받음
 year=2021 #기본값, 코드 재시도시 입력받음
 ecnt=0#시도 횟수
 
-
+#당해년도로 수정이라... 그 해당 년도를 입력받았을 때 그 년도만 하기를 바라는 거겠지?
 #코드 재시도시(에러로 인해 중단된 경우)
 if(attempt>=1):
     # 이전 크롤링에서 끝난 위치의 정보가 담겨있음
@@ -95,7 +95,7 @@ cstarting=0
 while(year>=limit):
     try:
         while (year >= limit):
-            print("erroris here 1")
+
             eplag=0
             # title, link, year 받는 부분
             cnt = starting
@@ -105,7 +105,7 @@ while(year>=limit):
                            "/ div[2] / div[2] / div[1] / div[" + str(
                     cnt) + "] / div / div / div / div[2] / h4[2] / a")))
             while (year >= limit and cnt <= 36):
-                print("erroris here 2")
+
                 dateinfo = element_1.find_element_by_xpath(
                     "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[1]/div[" + str(
                         cnt) + "]/div/div/div/div[2]/div/span/span").text
@@ -125,7 +125,7 @@ while(year>=limit):
 
             # for 문 내에서 각 영상의 script, tags, views 받아옴
             for i in range(starting, cnt):
-                print("erroris here 3")
+
                 cstarting=i
                 e_plag=1
                 print("영상 번호: " + str(pagenum) + "-" + str(i))
@@ -223,6 +223,8 @@ while(year>=limit):
                     scripts.append(script_one)
                     print("스크립트 완료")
 
+                    cstarting=cstarting+1
+
                 temp_s=time.time()
                 # 뒤로가기
                 driver.back()
@@ -230,7 +232,7 @@ while(year>=limit):
                     driver.back()
                 ecnt = 0
 
-            print("erroris here 4")
+
             starting = 1  # 보수시 starting 바뀜을 고려
             ny = len(years)
             # 다음 페이지로 넘김

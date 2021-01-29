@@ -17,7 +17,7 @@ start = time.time()
 
 
 #연도 하한선 설정
-limit=int(input("limit year: "))
+limit=int(input("select year: "))
 global to_config
 to_config=[]
 def make_noise():

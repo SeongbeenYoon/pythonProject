@@ -1,4 +1,5 @@
 #import
+import winsound
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -19,6 +20,10 @@ start = time.time()
 limit=int(input("limit year: "))
 global to_config
 to_config=[]
+def make_noise():
+  duration = 1000  # milliseconds
+  freq = 440  # Hz
+  winsound.Beep(freq, duration)
 def merge6(a,b,c,d,e,f,l):
     new_list=[]
     tmp=[]
@@ -182,98 +187,111 @@ finding_point=0
 f_plag=0
 b_plag=0
 #그 년도 까지 가는 거를 또 해봐야할 것 아닌교
-while(year>=limit):
-    try:
-        while (year >= limit):
-            # title, link, year 받는 부분
-            cnt=starting
-            wait = WebDriverWait(driver, 60)
-            element_1 = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, "/ html / body / div[1] / div[2] / div "
-                           "/ div[2] / div[2] / div[1] / div[" + str(
-                    cnt) + "] / div / div / div / div[2] / h4[2] / a")))
-            while (year >= limit and cnt <= 36):
-                if (e_plag == 0):
-                    dateinfo = element_1.find_element_by_xpath(
-                        "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[1]/div[" + str(
-                            cnt) + "]/div/div/div/div[2]/div/span/span").text
-                    ld = len(dateinfo)
-                    year = int(dateinfo[ld - 4:ld])
-                    print(year)
+try:
+    while (year >= limit):
+        try:
+            while (year >= limit):
+                # title, link, year 받는 부분
+                cnt = starting
+                wait = WebDriverWait(driver, 60)
+                element_1 = wait.until(EC.element_to_be_clickable(
+                    (By.XPATH, "/ html / body / div[1] / div[2] / div "
+                               "/ div[2] / div[2] / div[1] / div[" + str(
+                        cnt) + "] / div / div / div / div[2] / h4[2] / a")))
+                while (year >= limit and cnt <= 36):
+                    if (e_plag == 0):
+                        dateinfo = element_1.find_element_by_xpath(
+                            "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[1]/div[" + str(
+                                cnt) + "]/div/div/div/div[2]/div/span/span").text
+                        ld = len(dateinfo)
+                        year = int(dateinfo[ld - 4:ld])
+                        print(year)
 
-                    if (year == limit and f_plag == 0):
-                        f_plag = 1
-                        b_plag = cnt
-                        starting = cnt
+                        if (year == limit and f_plag == 0):
+                            f_plag = 1
+                            b_plag = cnt
+                            starting = cnt
+                        if (f_plag == 1):
+                            linkinfo = element_1.find_element_by_xpath(
+                                "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[1]/div["
+                                + str(cnt) + "]/div/div/div/div[2]/h4[2]/a")
+                            title = linkinfo.text
+                            titles.append(title)
+                            link = linkinfo.get_attribute("href")
+                            links.append(link)
+                            years.append(year)
+                    cnt += 1
+
+                print("페이지 마지막 영상의 연도: " + str(year))
+                e_plag = 0
+                # for 문 내에서 각 영상의 script, tags, views 받아옴
+                for i in range(starting, cnt):
                     if (f_plag == 1):
-                        linkinfo = element_1.find_element_by_xpath(
-                            "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[1]/div["
-                            + str(cnt) + "]/div/div/div/div[2]/h4[2]/a")
-                        title = linkinfo.text
-                        titles.append(title)
-                        link = linkinfo.get_attribute("href")
-                        links.append(link)
-                        years.append(year)
-                cnt += 1
+                        cstarting = i
+                        print("영상 번호: " + str(pagenum) + "-" + str(i))
+                        n = i
+                        iy = ny + i
+                        print(iy-starting)
+                        wy = years[iy - starting]
+                        # 404error detect
+                        plagt = 0
+                        plags = 0
+                        plagv = 0
 
-            print("페이지 마지막 영상의 연도: " + str(year))
-            e_plag=0
-            # for 문 내에서 각 영상의 script, tags, views 받아옴
-            for i in range(starting, cnt):
-                if(f_plag==1):
-                    cstarting = i
-                    print("영상 번호: " + str(pagenum) + "-" + str(i))
-                    n = i
-                    iy = ny + i
-                    wy = years[iy - starting]
-                    # 404error detect
-                    plagt = 0
-                    plags = 0
-                    plagv = 0
+                        # 반복문 실행시 임시 배열(초기화 역할 동시에)
+                        tag_one = []
+                        script_one = []
 
-                    # 반복문 실행시 임시 배열(초기화 역할 동시에)
-                    tag_one = []
-                    script_one = []
+                        # 영상 순차적으로 선택
+                        # 여기서 다시 에러가 나는 것으로 아마 추정이 되는 중..!
+                        errp = 0
+                        test_element = driver.find_element_by_xpath(
+                            "/ html / body / div[1] / div[2] / div / div[2] "
+                            "/ div[2] / div[1] / div[" + str(
+                                i) + "] / div / div / div / div[2] / h4[2] / a")
+                        test_element.send_keys(Keys.ENTER)
+                        ecnt = 0
+                        errp = 1
+                        # 영상 대기
+                        try:
+                            wait = WebDriverWait(driver, 60)
+                            element_1 = wait.until(EC.element_to_be_clickable(
+                                (By.XPATH,
+                                 "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[1]/div/a")))
+                        except TimeoutException:
+                            print("need another XPATH Wait for a while")
+                            # 이거 나올때는 그래도 이 안에서 해결이 되니까 뭐
 
-                    # 영상 순차적으로 선택
-                    # 여기서 다시 에러가 나는 것으로 아마 추정이 되는 중..!
-                    errp=0
-                    test_element = driver.find_element_by_xpath(
-                        "/ html / body / div[1] / div[2] / div / div[2] "
-                        "/ div[2] / div[1] / div[" + str(
-                            i) + "] / div / div / div / div[2] / h4[2] / a")
-                    test_element.send_keys(Keys.ENTER)
-                    ecnt = 0
-                    errp=1
-                    # 영상 대기
-                    try:
-                        wait = WebDriverWait(driver, 60)
-                        element_1 = wait.until(EC.element_to_be_clickable(
-                            (By.XPATH,
-                             "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[1]/div/a")))
-                    except TimeoutException:
-                        print("need another XPATH Wait for a while")
-                        # 이거 나올때는 그래도 이 안에서 해결이 되니까 뭐
+                            wait = WebDriverWait(driver, 10)
+                            element_1 = wait.until(EC.element_to_be_clickable(
+                                (By.XPATH,
+                                 "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[2]/div/div[1]/div[2]/div/div[4]/div[1]/div/a")))
 
-                        wait = WebDriverWait(driver, 10)
-                        element_1 = wait.until(EC.element_to_be_clickable(
-                            (By.XPATH,
-                             "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[2]/div/div[1]/div[2]/div/div[4]/div[1]/div/a")))
+                        time.sleep(1)
 
-                    time.sleep(1)
-
-                    # 태그 받음
-                    try:
-                        testtag = element_1.find_element_by_xpath(
-                            "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[1]/div/a[1]")
-                    except NoSuchElementException:
-                        # 레이아웃 추가시 재시도
+                        # 태그 받음
                         try:
                             testtag = element_1.find_element_by_xpath(
-                                "//*[@id=\"content\"]/div/div[4]/div[2]/section/div/div[2]/div/div[2]/h2")
+                                "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[1]/div/a[1]")
                         except NoSuchElementException:
-                            tags.append("No tags")
-                            plagt = 1
+                            # 레이아웃 추가시 재시도
+                            try:
+                                testtag = element_1.find_element_by_xpath(
+                                    "//*[@id=\"content\"]/div/div[4]/div[2]/section/div/div[2]/div/div[2]/h2")
+                            except NoSuchElementException:
+                                tags.append("No tags")
+                                plagt = 1
+                            else:
+                                req = driver.page_source
+                                soup = BeautifulSoup(req, 'html.parser')
+                                tag = soup.select('meta[property = "og:video:tag"]')
+
+                                for t in tag:
+                                    tc = t['content']
+                                    tag_one.append(tc)
+                                tag_one.append(" ")
+                                tags.append(tag_one)
+
                         else:
                             req = driver.page_source
                             soup = BeautifulSoup(req, 'html.parser')
@@ -285,171 +303,192 @@ while(year>=limit):
                             tag_one.append(" ")
                             tags.append(tag_one)
 
-                    else:
-                        req = driver.page_source
-                        soup = BeautifulSoup(req, 'html.parser')
-                        tag = soup.select('meta[property = "og:video:tag"]')
+                        # 뷰 받음
+                        try:
+                            testview = element_1.find_element_by_xpath(
+                                "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[2]/section/div/div[2]/div/div[1]/span")
+                        except NoSuchElementException:
+                            plagv = 1
+                            views.append("No views")
+                        else:
+                            view = element_1.find_element_by_xpath(
+                                "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[2]/section/div/div[2]/div/div[1]/span").text
+                            views.append(view)
+                            print("check")
 
-                        for t in tag:
-                            tc = t['content']
-                            tag_one.append(tc)
-                        tag_one.append(" ")
-                        tags.append(tag_one)
+                        print("태그뷰 완료", end=" ")
 
-                    # 뷰 받음
-                    try:
-                        testview = element_1.find_element_by_xpath(
-                            "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[2]/section/div/div[2]/div/div[1]/span")
-                    except NoSuchElementException:
-                        plagv = 1
-                        views.append("No views")
-                    else:
-                        view = element_1.find_element_by_xpath(
-                            "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[2]/section/div/div[2]/div/div[1]/span").text
-                        views.append(view)
-                        print("check")
+                        # 스크립트 받음
+                        try:
+                            testscr = element_1.find_element_by_xpath(
+                                "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[1]/div/a[2]")
+                        except NoSuchElementException:
+                            plags = 1
+                            print("No Script")
+                            scripts.append("No Scripts")
+                            cstarting = cstarting + 1
 
-                    print("태그뷰 완료", end=" ")
+                        else:
+                            testscr.click()
+                            time.sleep(3)
+                            req = driver.page_source
+                            soup = BeautifulSoup(req, 'html.parser')
+                            divs = soup.findAll('div', {"class": "Grid__cell flx-s:1 p-r:4"})
 
-                    # 스크립트 받음
-                    try:
-                        testscr = element_1.find_element_by_xpath(
-                            "/html/body/div[1]/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div[2]/div/div[4]/div[1]/div/a[2]")
-                    except NoSuchElementException:
-                        plags = 1
-                        print("No Script")
-                        scripts.append("No Scripts")
-                        cstarting = cstarting + 1
+                            temp = []
+                            for d in divs:
+                                scrs = d.findAll('p')
+                                for s in scrs:
+                                    s = s.text
+                                    temp.append(s)
+                            script_one = ''.join(temp)
+                            if (len(script_one) == 0):
+                                script_one = "No Scripts"
+                            scripts.append(script_one)
+                            print("스크립트 완료")
+                            cstarting = cstarting + 1
 
-                    else:
-                        testscr.click()
-                        time.sleep(3)
-                        req = driver.page_source
-                        soup = BeautifulSoup(req, 'html.parser')
-                        divs = soup.findAll('div', {"class": "Grid__cell flx-s:1 p-r:4"})
-
-                        temp = []
-                        for d in divs:
-                            scrs = d.findAll('p')
-                            for s in scrs:
-                                s = s.text
-                                temp.append(s)
-                        script_one = ''.join(temp)
-                        if (len(script_one) == 0):
-                            script_one = "No Scripts"
-                        scripts.append(script_one)
-                        print("스크립트 완료")
-                        cstarting = cstarting + 1
-
-                        # 에러 확인용
-                        lens[0] = len(titles)
-                        lens[1] = len(links)
-                        lens[2] = len(years)
-                        lens[3] = len(views)
-                        lens[4] = len(tags)
-                        lens[5] = len(scripts)
-                        print(lens)
-                        temp_s = time.time()
-                        # 뒤로가기
-                        driver.back()
-                        if (plags == 0):
+                            # 에러 확인용
+                            lens[0] = len(titles)
+                            lens[1] = len(links)
+                            lens[2] = len(years)
+                            lens[3] = len(views)
+                            lens[4] = len(tags)
+                            lens[5] = len(scripts)
+                            print(lens)
+                            temp_s = time.time()
+                            # 뒤로가기
                             driver.back()
+                            if (plags == 0):
+                                driver.back()
 
-
-            starting = 1  # 보수시 starting 바뀜을 고려
-            ny = len(years)
-            # 다음 페이지로 넘김
-            req = driver.page_source
-            soup = BeautifulSoup(req, 'html.parser')
-            tests = soup.find('div', {"class": "pagination"})
-            num = len(tests.findAll('a'))
-            element_1 = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[2]/div/a[" + str(num) + "]")))
-            testnext = element_1.find_element_by_xpath(
-                "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[2]/div/a[" + str(num) + "]")
-            testnext.send_keys(Keys.ENTER)
-            pagenum += 1
-
-            # for Refresh
-            time.sleep(10)
-
-
-    except:
-        print("erroris here 5")
-        e_plag=1
-        if(ecnt<=5):
-            ecnt += 1
-            print(ecnt)
-            year=wy
-            starting=cstarting
-            print(starting)
-            if(errp==0):
+                starting = 1  # 보수시 starting 바뀜을 고려
+                ny = len(years)
+                # 다음 페이지로 넘김
+                req = driver.page_source
+                soup = BeautifulSoup(req, 'html.parser')
+                tests = soup.find('div', {"class": "pagination"})
+                errp=2
+                num = len(tests.findAll('a'))
                 errp=1
-                driver.back()
+                element_1 = wait.until(EC.element_to_be_clickable(
+                    (By.XPATH, "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[2]/div/a[" + str(num) + "]")))
+                testnext = element_1.find_element_by_xpath(
+                    "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[2]/div/a[" + str(num) + "]")
+                testnext.send_keys(Keys.ENTER)
+                pagenum += 1
 
-            else:
-                driver.refresh()
-            """
-                year=wy
-                starting=n
+                # for Refresh
+                time.sleep(10)
+
+
+        except Exception as e:
+            print(e)
+            print("erroris here 5")
+            e_plag = 1
+            if (ecnt <= 5):
+                ecnt += 1
+                print(ecnt)
+                year = wy
+                starting = cstarting
+                print(starting)
+                if (errp == 0):
+                    errp = 1
+                    driver.back()
+                elif (errp==2):
+                    driver.back()
+                    starting = 1  # 보수시 starting 바뀜을 고려
+                    ny = len(years)
+                    # 다음 페이지로 넘김
+                    req = driver.page_source
+                    soup = BeautifulSoup(req, 'html.parser')
+                    tests = soup.find('div', {"class": "pagination"})
+                    errp = 2
+                    num = len(tests.findAll('a'))
+                    errp = 1
+                    element_1 = wait.until(EC.element_to_be_clickable(
+                        (By.XPATH, "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[2]/div/a[" + str(num) + "]")))
+                    testnext = element_1.find_element_by_xpath(
+                        "/html/body/div[1]/div[2]/div/div[2]/div[2]/div[2]/div/a[" + str(num) + "]")
+                    testnext.send_keys(Keys.ENTER)
+                    pagenum += 1
+                    errp=1
+                    e_plag=0
+
+                else:
+                    print("refresh")
+                    driver.refresh()
                 """
-        elif(ecnt>=5 and ecnt<=6):
-            ecnt+=1
-            driver.back()
-        elif(ecnt>=7 and ecnt<=8):
-            ecnt += 1
-            driver.quit()
-            time.sleep(5)
-            driver.get("https://www.ted.com/talks?page=" + str(pagenum))
-        else:
-            print("Error did not fixed")
-            break
-#긁어온 데이터 분석해보니 약간 밀리는 뭔가가 있었던듯?
-"""
-links=remove_com(links)
-titles=remove_com_1(titles)
-years=remove_com_2(years)
-"""
-Al=merge6(links,titles,years,views,tags,scripts,len(views))
+                    year=wy
+                    starting=n
+                    """
+            elif (ecnt >= 5 and ecnt <= 6):
+                ecnt += 1
+                driver.back()
+            elif (ecnt >= 7 and ecnt <= 8):
+                ecnt += 1
+                driver.quit()
+                time.sleep(5)
+                driver.get("https://www.ted.com/talks?page=" + str(pagenum))
+            else:
+                print("Error did not fixed")
+                break
+finally:
+    # 긁어온 데이터 분석해보니 약간 밀리는 뭔가가 있었던듯?
+    """
+    links=remove_com(links)
+    titles=remove_com_1(titles)
+    years=remove_com_2(years)
+    """
+    Al = merge6(links, titles, years, views, tags, scripts, len(views))
 
-Al=remove_com(Al)
-Al=reversecr(Al)
-links=Al[0]
-titles=Al[1]
-years=Al[2]
-views=Al[3]
-tags=Al[4]
-scripts=Al[5]
+    Al = remove_com(Al)
+    Al = reversecr(Al)
+    links = Al[0]
+    titles = Al[1]
+    years = Al[2]
+    views = Al[3]
+    tags = Al[4]
+    scripts = Al[5]
 
-lens = [0, 0, 0, 0, 0, 0]
-lens[0] = len(titles)
-lens[1] = len(links)
-lens[2] = len(years)
-lens[3] = len(views)
-lens[4] = len(tags)
-lens[5] = len(scripts)
-print(lens)
-minlen = min(lens)
+    lens = [0, 0, 0, 0, 0, 0]
+    lens[0] = len(titles)
+    lens[1] = len(links)
+    lens[2] = len(years)
+    lens[3] = len(views)
+    lens[4] = len(tags)
+    lens[5] = len(scripts)
+    print(lens)
+    minlen = min(lens)
+    if(years[minlen-1]!=limit):
+        titles = titles[:minlen - 1]
+        links = links[:minlen - 1]
+        years = years[:minlen - 1]
+        views = views[:minlen - 1]
+        tags = tags[:minlen - 1]
+        scripts = scripts[:minlen - 1]
+    else:
+        titles = titles[:minlen]
+        links = links[:minlen]
+        years = years[:minlen]
+        views = views[:minlen]
+        tags = tags[:minlen]
+        scripts = scripts[:minlen]
 
-titles = titles[:minlen-1]
-links = links[:minlen-1]
-years = years[:minlen-1]
-views = views[:minlen-1]
-tags = tags[:minlen-1]
-scripts = scripts[:minlen-1]
+    raw_data = {'titles': titles,
+                'links': links,
+                'years': years,
+                'views': views,
+                'tags': tags,
+                'scripts': scripts
+                }
+    raw_data = pd.DataFrame(raw_data)
+    raw_data.to_excel(excel_writer='C:/Users/User/Desktop/Data_' + str(attempt) + '.xlsx')
+    make_noise()
+    f_info = open('C:/Users/User/Desktop/tmp_info' + '_' + str(attempt) + '.txt', 'w', -1, "utf-8")
+    f_info.write(str(wy) + "/")
+    f_info.write(str(pagenum) + "/")
+    f_info.write(str(n) + "/")
+    f_info.close()
+    print("time :", time.time() - start)  # 현재시각 - 시작시간 = 실행 시간
 
-raw_data = {'titles': titles,
-            'links': links,
-            'years': years,
-            'views': views,
-            'tags': tags,
-            'scripts': scripts
-            }
-raw_data = pd.DataFrame(raw_data)
-raw_data.to_excel(excel_writer='C:/Users/User/Desktop/Data_' + str(attempt) + '.xlsx')
-f_info = open('C:/Users/User/Desktop/tmp_info' + '_' + str(attempt) + '.txt', 'w', -1, "utf-8")
-f_info.write(str(wy) + "/")
-f_info.write(str(pagenum) + "/")
-f_info.write(str(n) + "/")
-f_info.close()
-print("time :", time.time() - start)  # 현재시각 - 시작시간 = 실행 시간
